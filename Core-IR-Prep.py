@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 import zipfile
@@ -15,7 +15,7 @@ DATA_ZIP_FILE = 'AOL_search_data_leak_2006.zip'
 DATA_DIR = 'AOL-user-ct-collection'
 
 
-# In[2]:
+# In[ ]:
 
 
 ## Check if the zip file is in this directory
@@ -24,7 +24,7 @@ if not os.path.isfile(DATA_ZIP_FILE):
     raise Exception(DATA_ZIP_FILE + ' not found.')
 
 
-# In[3]:
+# In[ ]:
 
 
 ## Extract zip file
@@ -36,7 +36,7 @@ archive.close()
 shutil.rmtree('__MACOSX', ignore_errors=True)
 
 
-# In[4]:
+# In[ ]:
 
 
 ## Extract gz files inside zip file
@@ -48,7 +48,7 @@ for gz_filename in gz_files:
         shutil.copyfileobj(f_in, f_out)
 
 
-# In[11]:
+# In[ ]:
 
 
 ## Concat all files into a single file
@@ -63,11 +63,11 @@ dtypes = {
     'ClickUrl': 'str',
 }
 
-files = (pandas.read_csv(f, sep="\t", dtype=dtypes, parse_dates=[2]) for f in txt_files)
+files = (pandas.read_csv(f, sep="\t", dtype=dtypes) for f in txt_files)
     
-frame = pandas.concat(files, axis=0, ignore_index=True)
+frame = pandas.concat(files, ignore_index=True)
 
-frame.sort_values(by=['QueryTime'])
+frame.sort_values('QueryTime', inplace=True)
 
 frame.to_csv('data.csv')
 
