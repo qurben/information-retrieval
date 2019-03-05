@@ -98,7 +98,9 @@ From the paper:
 
 ### Implement selection of suffix based candidates
 
-The meat of our reproduction. Have a way to select the _n_ Suffix based candidates from the data. For our reproduction we need to be able to easily pull the following number of suffix based candidates:
+The meat of our reproduction. Have a way to select the _n_ Suffix based candidates from the data.
+For our reproduction we need to be able to easily pull the following number of suffix based
+candidates:
 
 - 1K most frequent prefixes
 - 5K most frequent prefixes
