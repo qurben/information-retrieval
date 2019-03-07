@@ -19,18 +19,15 @@ IN_FILE = 'background.csv'
 OUT_FILE = 'total_data_ngrams.csv'
 SUFFIX_FILE = 'total_data_ngrams.csv'
 CHUNK_SIZE = 10000
-NUMBER_OF_NGRAMS = 3
+MAX_NUMBER_OF_NGRAMS = 3
 
 
 # In[ ]:
 
 
-def apply_suffix_ngrams(query):
-    return pd.Series(suffix_ngrams(query))
-
 def suffix_ngrams(string):
     words = re.sub(r' +|-|\.', ' ', ' ' + string).split()
-    num_ngrams = min(len(words), NUMBER_OF_NGRAMS)
+    num_ngrams = min(len(words), MAX_NUMBER_OF_NGRAMS)
     
     for i in range(num_ngrams): yield ' '.join(words[(-1-i):])
 
@@ -38,7 +35,7 @@ def suffix_ngrams(string):
 # In[ ]:
 
 
-ngram_cols = ['ngram{}'.format(n+1) for n in range(NUMBER_OF_NGRAMS)]
+ngram_cols = ['ngram{}'.format(n+1) for n in range(MAX_NUMBER_OF_NGRAMS)]
 
 with open(SUFFIX_FILE, 'w') as the_file:
     the_file.write('')
