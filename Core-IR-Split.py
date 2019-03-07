@@ -14,7 +14,7 @@
 # > normalize all the queries ineach of these datasets by removing any punctuation characters and
 # > converting them to lower case.
 
-# In[1]:
+# In[ ]:
 
 
 import pandas
@@ -26,7 +26,7 @@ CHUNK_SIZE = 100000
 IN_FILE = 'total_data.csv'
 
 
-# In[2]:
+# In[ ]:
 
 
 data_start = "2006-03-01 00:00:00"
@@ -44,7 +44,7 @@ dtypes = {
 }
 
 
-# In[3]:
+# In[ ]:
 
 
 with open(IN_FILE, 'r') as in_file:
@@ -55,19 +55,19 @@ for file in list(['background.csv', 'training.csv', 'validation.csv', 'test.csv'
         the_file.write(header)
 
 
-# In[4]:
+# In[ ]:
 
 
 num_chunks = int(sum(1 for row in open(IN_FILE, 'r')) / CHUNK_SIZE) + 1
 chunks = pandas.read_csv(IN_FILE, dtype=dtypes, index_col=0, chunksize=CHUNK_SIZE)
-chunk_ids = iter(range(1, num_chunks+1))
+chunk_id = iter(range(1, num_chunks+1))
 
 
-# In[5]:
+# In[ ]:
 
 
 for df in chunks:
-    print("Processing chunk {} of {}".format(next(chunk_ids), num_chunks), end="\r")
+    print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
 
     background = df[(df['QueryTime'] > data_start) & (df['QueryTime'] < background_end)]
     training = df[(df['QueryTime'] > background_end) & (df['QueryTime'] < training_end)]
