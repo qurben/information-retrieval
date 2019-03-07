@@ -2,6 +2,8 @@
 # coding: utf-8
 
 # # Generate ngrams for every row
+# 
+# Generate the ngrams from the background data
 
 # In[ ]:
 
