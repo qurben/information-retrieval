@@ -29,6 +29,14 @@ IN_FILE = 'total_data.csv'
 # In[ ]:
 
 
+if os.path.isfile('background.csv'):
+    name = input('Output file already exists, do you want to continue? (y/n): ')
+    if name != 'y': exit()
+
+
+# In[ ]:
+
+
 data_start = "2006-03-01 00:00:00"
 background_end = "2006-04-30 23:59:59"
 training_end = "2006-05-14 23:59:59"

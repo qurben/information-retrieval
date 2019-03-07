@@ -17,6 +17,15 @@ import pandas
 
 DATA_ZIP_FILE = 'AOL_search_data_leak_2006.zip'
 DATA_DIR = 'AOL-user-ct-collection'
+OUT_FILE = 'total_data.csv'
+
+
+# In[ ]:
+
+
+if os.path.isfile(OUT_FILE):
+    name = input('Output file already exists, do you want to continue? (y/n): ')
+    if name != 'y': exit()
 
 
 # In[ ]:
@@ -73,7 +82,7 @@ frame = pandas.concat(files, ignore_index=True)
 
 frame.sort_values('QueryTime', inplace=True)
 
-frame.to_csv('total_data.csv')
+frame.to_csv(OUT_FILE)
 
 
 # In[ ]:
