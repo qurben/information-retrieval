@@ -5,7 +5,9 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2015/10/spir0468-mit
 
 ## Data
 
-The `AOL_search_data_leak_2006.zip` file is required. Run `Core-IR-Prep.py` in a python distribution with `pandas` installed ([Anaconda](https://anaconda.org/) has it installed an probably also all the other things we ever need).
+The `AOL_search_data_leak_2006.zip` file is required. Run `Core-IR-Prep.py` in a python
+distribution with `pandas` installed ([Anaconda](https://anaconda.org/) has it installed an
+probably also all the other things we ever need).
 
 ## Notebook
 
@@ -37,6 +39,9 @@ open up Jupyter.
 ## Steps
 
 ### Data preparation
+
+Run `1-Core-IR-Prep.py` and `2-Core-IR-Split.py` to prep data and split according to the definition
+in the paper
 
  - Prep data
  - Split training and validation data
@@ -83,6 +88,8 @@ This gives us:
 Maybe come up with some more features as this list might not be exhaustive.
 
 ### Implement _n_-gram based features
+
+Run `3-Core-IR-ngrams.py` to extract all ngram suffixes from the background data.
 
 From the paper:
 
