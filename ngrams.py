@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 
-df = pd.DataFrame(pd.read_csv('total_data.csv',index_col=0,low_memory=False))
+chunks = pd.read_csv('data.csv',index_col=0,low_memory=False, chunksize=100000)
 dtypes = {
     'AnonID': 'str',
     'Query': 'str',
@@ -22,7 +22,11 @@ def suffix_ngrams(string):
 
     return ngrams + [None]*(NUMBER_OF_NGRAMS - len(ngrams))
 
-df = df.fillna('')
-df["ngram1"], df["ngram2"], df["ngram3"], df["ngram4"] = zip(*df["Query"].map(suffix_ngrams))
+chunk_id = 0
 
-df.to_csv('total_grams_dataset.csv')
+for df in chunks:
+    print("Processing chunk " + str(chunk_id))
+    chunk_id = chunk_id+1
+    df = df.fillna('')
+    df["ngram1"], df["ngram2"], df["ngram3"], df["ngram4"] = zip(*df["Query"].map(suffix_ngrams))
+    df.to_csv('total_grams_dataset.csv', mode='a', header=False)
