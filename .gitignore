@@ -6,3 +6,5 @@ test.csv
 training.csv
 validation.csv
 background.csv
+total_grams_dataset.csv
+__pycache__
