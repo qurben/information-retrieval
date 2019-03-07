@@ -65,6 +65,25 @@ From the paper:
 > suggestions per model. Finally, the CLSM models are trained using 44,558,631 and 212,854,198
 > prefix-suffix pairs onthe AOL and the Bing testbeds, respectively.
 
+### Candidate generation
+
+From the paper:
+
+> for a given prefix we extract the end-term as shown in Figure 1. We match all the suffixes that
+> start with the end-term from our precomputed set. These selected suffixes are appended to the
+> prefix to generate synthetic suggestion candidates. For example, the prefix "cheap flights fro"
+> is matched with the suffix "from seattle" to generate the candidate "cheap flights from seattle".
+> Note that many of these synthetic suggestion candidates are likely to not have been observed by
+> the search engine before. We merge these synthetic suggestions with the set of candidates
+> selected from the list of historically popular queries. This combined set of candidates is used
+> for ranking as we will describe in Sec 4.
+
+And for popular queries:
+
+> For candidate generation, both the list of popular queries and suffixes are mined from the
+> background portion of the two testbeds. We use 724,340 and 1,040,674 distinct queries on the AOL
+> testbed and the Bing testbed, respectively, as the set of full-query candidates
+
 ### Formalize and implement ranking features
 
 From the paper:

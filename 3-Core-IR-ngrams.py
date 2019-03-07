@@ -5,10 +5,11 @@
 # 
 # Generate the ngrams from the background data
 
-# In[2]:
+# In[ ]:
 
 
 import pandas as pd
+import dask.dataframe as dd
 import numpy as np
 import re
 import os
@@ -16,6 +17,7 @@ import os.path
 
 IN_FILE = 'background.csv'
 OUT_FILE = 'total_data_ngrams.csv'
+SUFFIX_FILE = 'total_data_ngrams.csv'
 CHUNK_SIZE = 10000
 NUMBER_OF_NGRAMS = 3
 
@@ -38,7 +40,7 @@ def suffix_ngrams(string):
 
 ngram_cols = ['ngram{}'.format(n+1) for n in range(NUMBER_OF_NGRAMS)]
 
-with open(OUT_FILE, 'w') as the_file:
+with open(SUFFIX_FILE, 'w') as the_file:
     the_file.write('')
 
 
@@ -80,5 +82,14 @@ for df in chunks:
     # 7. Drop any empty values (any rows with less than NUMBER_OF_NGRAMS ngrams.
     df = df.Query.apply(suffix_ngrams).apply(pd.Series)         .merge(df, right_index = True, left_index = True)         .drop(['Query'], axis=1)         .reset_index()         .melt(id_vars = ['index'], value_name = "ngram")         .drop(['variable', 'index'], axis = 1)         .dropna()
     
-    df.to_csv(OUT_FILE, mode='a', header=False, index=False)
+    df.to_csv(SUFFIX_FILE, mode='a', header=False, index=False)
+
+
+# In[ ]:
+
+
+df = pd.read_csv(SUFFIX_FILE, header=None, names=['ngram'])
+df = dd.from_pandas(df, chunksize=CHUNK_SIZE)
+df = df.groupby('ngram').agg('size').compute()        .reset_index(name='counts')        .sort_values('counts', ascending=False)
+df.to_csv('popular_suffix.csv')
 
