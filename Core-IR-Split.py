@@ -14,21 +14,26 @@
 # > normalize all the queries ineach of these datasets by removing any punctuation characters and
 # > converting them to lower case.
 
-# In[6]:
+# In[1]:
 
 
 import pandas
 from dateutil import parser
+import os
+import os.path
+
+CHUNK_SIZE = 100000
+IN_FILE = 'total_data.csv'
 
 
-# In[ ]:
+# In[2]:
 
 
 data_start = "2006-03-01 00:00:00"
 background_end = "2006-04-30 23:59:59"
 training_end = "2006-05-14 23:59:59"
 validation_end = "2006-05-21 23:59:59"
-test_end = "2006-03-28 23:59:59"
+test_end = "2006-05-28 23:59:59"
 
 dtypes = {
     'AnonID': 'str',
@@ -39,37 +44,44 @@ dtypes = {
 }
 
 
-# In[ ]:
+# In[3]:
 
 
-df = pandas.read_csv('data.csv', dtype=dtypes)
-df = df.set_index(df['QueryTime'])
+with open(IN_FILE, 'r') as in_file:
+    header = in_file.readline()
+
+for file in list(['background.csv', 'training.csv', 'validation.csv', 'test.csv']):
+    with open(file, 'w') as the_file:
+        the_file.write(header)
 
 
-# In[ ]:
+# In[4]:
 
 
-background = df[data_start:background_end]
-background.to_csv('background.csv')
-
-
-# In[ ]:
-
-
-training = df[background_end:training_end]
-training.to_csv('training.csv')
-
-
-# In[ ]:
-
-
-validation = df[training_end:validation_end]
-validation.to_csv('validation.csv')
+num_chunks = int(sum(1 for row in open(IN_FILE, 'r')) / CHUNK_SIZE) + 1
+chunks = pandas.read_csv(IN_FILE, dtype=dtypes, index_col=0, chunksize=CHUNK_SIZE)
+chunk_ids = iter(range(1, num_chunks+1))
 
 
 # In[ ]:
 
 
-test = df[validation_end:test_end]
-test.to_csv('test.csv')
+for df in chunks:
+    print("Processing chunk {} of {}".format(next(chunk_ids), num_chunks), end="\r")
+
+    background = df[(df['QueryTime'] > data_start) & (df['QueryTime'] < background_end)]
+    training = df[(df['QueryTime'] > background_end) & (df['QueryTime'] < training_end)]
+    validation = df[(df['QueryTime'] > training_end) & (df['QueryTime'] < validation_end)]
+    test = df[(df['QueryTime'] > validation_end) & (df['QueryTime'] < test_end)]
+
+    background.to_csv('background.csv', mode='a', header=False)
+    training.to_csv('training.csv', mode='a', header=False)
+    validation.to_csv('validation.csv', mode='a', header=False)
+    test.to_csv('test.csv', mode='a', header=False)
+
+
+# In[ ]:
+
+
+
 
