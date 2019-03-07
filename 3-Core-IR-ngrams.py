@@ -5,7 +5,7 @@
 # 
 # Generate the ngrams from the background data
 
-# In[ ]:
+# In[2]:
 
 
 import pandas as pd
@@ -16,24 +16,20 @@ import os.path
 
 IN_FILE = 'background.csv'
 OUT_FILE = 'total_data_ngrams.csv'
-CHUNK_SIZE = 100000
-NUMBER_OF_NGRAMS = 4
+CHUNK_SIZE = 10000
+NUMBER_OF_NGRAMS = 3
 
 
 # In[ ]:
 
 
 def apply_suffix_ngrams(query):
-#     query = row.iloc[0]["Query"]
-    if pd.isna(query): query = ''
     return pd.Series(suffix_ngrams(query))
 
 def suffix_ngrams(string):
     words = re.sub(r' +|-|\.', ' ', ' ' + string).split()
     num_ngrams = min(len(words), NUMBER_OF_NGRAMS)
     
-    if num_ngrams == 0: return []
-
     for i in range(num_ngrams): yield ' '.join(words[(-1-i):])
 
 
@@ -42,9 +38,8 @@ def suffix_ngrams(string):
 
 ngram_cols = ['ngram{}'.format(n+1) for n in range(NUMBER_OF_NGRAMS)]
 
-with open(OUT_FILE, 'w') as the_file, open(IN_FILE, 'r') as in_file:
-    line = in_file.readline()[:-1]
-    the_file.write('id,ngram\n')
+with open(OUT_FILE, 'w') as the_file:
+    the_file.write('')
 
 
 # In[ ]:
@@ -71,9 +66,19 @@ chunk_id = iter(range(1, num_chunks+1))
 
 for df in chunks:
     print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
-    df.reset_index(inplace=True)
     
-    df = df.Query.apply(apply_suffix_ngrams)         .merge(df, right_index = True, left_index = True)         .drop(['Query'], axis=1)         .melt(id_vars = ['index'], value_name = "ngram")         .drop(["variable", "index"], axis = 1)         .dropna()
+    # Any empty query is not interesting
+    df.dropna(inplace=True)
     
-    df.to_csv(OUT_FILE, mode='a', header=False)
+    # 1. Apply suffix_ngrams, creates a list of ngrams for each row
+    # 2. Apply pd.Series, creates a series for this list
+    # 3. Merge the applied series with the dataframe
+    # 3. Drop the Query column, we don't need it anymore
+    # 4. Reset the index, make it available for selection
+    # 5. Melt with the index as id, this flattens the ngrams list
+    # 6. Drop the variable and index columns, they are not interesting anymore
+    # 7. Drop any empty values (any rows with less than NUMBER_OF_NGRAMS ngrams.
+    df = df.Query.apply(suffix_ngrams).apply(pd.Series)         .merge(df, right_index = True, left_index = True)         .drop(['Query'], axis=1)         .reset_index()         .melt(id_vars = ['index'], value_name = "ngram")         .drop(['variable', 'index'], axis = 1)         .dropna()
+    
+    df.to_csv(OUT_FILE, mode='a', header=False, index=False)
 
