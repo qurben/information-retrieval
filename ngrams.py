@@ -11,48 +11,18 @@ dtypes = {
     'ClickUrl': 'str',
 }
 
-def ngrams(string, i):
-    string = string.replace('-',' ')
-    string = string.replace('.',' ')
-    string = re.sub(' +', ' ', string)
-    suffixes = []
-    prefixes = []
-    if string == ' ':
-        suffixes = [None]*i
-    else:
-        words = string.split(' ')
-        for n in range(1,i+1):
-            if len(words) == n:
-                suffix = str(string)
-                prefix = None
-            elif len(words) > n:
-                suffix = words[-n:]
-                prefix = str(words[0:(len(words)-n)])
-            else:
-                suffix = None
-                prefix = None
-            if isinstance(suffix, list):
-                suffix = ''.join(suffix)
-            suffixes.append(suffix)
-            prefixes.append(prefix)
-    return prefixes, suffixes
+NUMBER_OF_NGRAMS = 4
 
+def suffix_ngrams(string):
+    words = re.sub(' +|-|\.', ' ', string).split()
 
-# Test file, i only used the first 3000 lines or something like that
-#fn = 'AOL-user-ct-collection/user-ct-test-collection-01.txt'
-#df = pd.DataFrame(pd.read_csv(fn, sep="\t", dtype=dtypes))
-j = 0
-n = 6
-suffixes = []
-# Loop through each query
-for i in range(df['Query'].size):
-    # Generate n-grams based on the query and n
-    prefix, suffix = ngrams(str(df['Query'].iloc[i]),n)
-    if j == 0:
-        suffix_arr = np.asarray(suffix)
-        j = 1
-    else:
-        suffix_arr = np.vstack((suffix_arr,np.asarray(suffix)))
+    num_ngrams = min(len(words), NUMBER_OF_NGRAMS)
 
-df_grams = pd.DataFrame(suffix_arr,columns = range(1,(n+1)))
-df_grams.to_csv('./total_grams_dataset.csv')
+    ngrams = [' '.join(words[-(i):]) for i in range(1, num_ngrams + 1)]
+
+    return ngrams + [None]*(NUMBER_OF_NGRAMS - len(ngrams))
+
+df = df.fillna('')
+df["ngram1"], df["ngram2"], df["ngram3"], df["ngram4"] = zip(*df["Query"].map(suffix_ngrams))
+
+df.to_csv('total_grams_dataset.csv')
