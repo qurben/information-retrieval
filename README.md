@@ -102,10 +102,10 @@ The meat of our reproduction. Have a way to select the _n_ Suffix based candidat
 For our reproduction we need to be able to easily pull the following number of suffix based
 candidates:
 
-- 1K most frequent prefixes
-- 5K most frequent prefixes
-- 10K most frequent prefixes (validate)
-- 20K most frequent prefixes
-- 50K most frequent prefixes
-- 75K most frequent prefixes
-- 100K most frequent prefixes (validate)
+- 1K most frequent suffixes
+- 5K most frequent suffixes
+- 10K most frequent suffixes (validate)
+- 20K most frequent suffixes
+- 50K most frequent suffixes
+- 75K most frequent suffixes
+- 100K most frequent suffixes (validate)
