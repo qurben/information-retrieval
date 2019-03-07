@@ -10,8 +10,9 @@ CHUNK_SIZE = 100000
 
 if os.path.exists(OUT_FILE): os.remove(OUT_FILE)
 
-with open(OUT_FILE, 'a') as the_file:
-    the_file.write('QueryTime,AnonID,Query,ItemRank,ClickURL,ngram1,ngram2,ngram3,ngram4,ngram5,ngram6\n')
+with open(OUT_FILE, 'a') as the_file, open(IN_FILE, 'r') as in_file:
+    line = in_file.readline()[:-1]
+    the_file.write(line + ',ngram1,ngram2,ngram3,ngram4,ngram5,ngram6\n')
 
 num_chunks = int(sum(1 for row in open(IN_FILE, 'r')) / CHUNK_SIZE) + 1
 
