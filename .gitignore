@@ -2,6 +2,7 @@ AOL_search_data_leak_2006.zip
 AOL-user-ct-collection
 .ipynb_checkpoints
 data.csv
+total_data.csv
 test.csv
 training.csv
 validation.csv
