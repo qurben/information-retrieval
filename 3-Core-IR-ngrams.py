@@ -22,6 +22,8 @@ MAX_NUMBER_OF_NGRAMS = 3
 
 
 def suffix_ngrams(string):
+    if string == '-': return # Remove single - strings
+    string = re.sub('- |\'', '', string) # Remove - used as separator and single '
     words = (' ' + string).split()
     num_ngrams = min(len(words), MAX_NUMBER_OF_NGRAMS)
     
