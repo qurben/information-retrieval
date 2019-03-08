@@ -73,6 +73,12 @@ top 724,340 distinct queries from the background data.
 
 **TODO**: Generate candidate queries based on the found ngram suffixes
 
+Format of the generated candidate:
+
+|prefix|suffix|candidate|
+|--|--|--
+|The prefix of the query|The suffix form the most popular suffixes|The candidate query in full|
+
 #### From the paper
 
 > for a given prefix we extract the end-term as shown in Figure 1. We match all the suffixes that
