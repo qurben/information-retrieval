@@ -17,9 +17,7 @@
 # In[ ]:
 
 
-import pandas
-from dateutil import parser
-import os
+import pandas as pd
 import os.path
 
 CHUNK_SIZE = 100000
@@ -67,7 +65,7 @@ for file in list(['background.csv', 'training.csv', 'validation.csv', 'test.csv'
 
 
 num_chunks = int(sum(1 for row in open(IN_FILE, 'r')) / CHUNK_SIZE) + 1
-chunks = pandas.read_csv(IN_FILE, dtype=dtypes, index_col=0, chunksize=CHUNK_SIZE)
+chunks = pd.read_csv(IN_FILE, dtype=dtypes, index_col=0, chunksize=CHUNK_SIZE)
 chunk_id = iter(range(1, num_chunks+1))
 
 

@@ -10,14 +10,10 @@
 
 import pandas as pd
 import dask.dataframe as dd
-import numpy as np
 import re
-import os
-import os.path
 
 IN_FILE = 'background.csv'
-OUT_FILE = 'total_data_ngrams.csv'
-SUFFIX_FILE = 'total_data_ngrams.csv'
+SUFFIX_FILE = 'total_data_ngrams_punct.csv'
 CHUNK_SIZE = 10000
 MAX_NUMBER_OF_NGRAMS = 3
 
@@ -26,7 +22,7 @@ MAX_NUMBER_OF_NGRAMS = 3
 
 
 def suffix_ngrams(string):
-    words = re.sub(r' +|-|\.', ' ', ' ' + string).split()
+    words = (' ' + string).split()
     num_ngrams = min(len(words), MAX_NUMBER_OF_NGRAMS)
     
     for i in range(num_ngrams): yield ' '.join(words[(-1-i):])
@@ -35,10 +31,7 @@ def suffix_ngrams(string):
 # In[ ]:
 
 
-ngram_cols = ['ngram{}'.format(n+1) for n in range(MAX_NUMBER_OF_NGRAMS)]
-
-with open(SUFFIX_FILE, 'w') as the_file:
-    the_file.write('')
+with open(SUFFIX_FILE, 'w') as the_file: the_file.write('')
 
 
 # In[ ]:
@@ -88,5 +81,5 @@ for df in chunks:
 df = pd.read_csv(SUFFIX_FILE, header=None, names=['ngram'])
 df = dd.from_pandas(df, chunksize=CHUNK_SIZE)
 df = df.groupby('ngram').agg('size').compute()        .reset_index(name='counts')        .sort_values('counts', ascending=False)
-df.to_csv('popular_suffix.csv')
+df.to_csv('popular_suffix_punct.csv')
 

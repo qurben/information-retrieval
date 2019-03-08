@@ -9,7 +9,7 @@
 # 
 # We need to find the 724340 most popular distinct queries from the background data.
 
-# In[13]:
+# In[ ]:
 
 
 import dask.dataframe as dd
@@ -21,7 +21,7 @@ IN_FILE = 'background.csv'
 OUT_FILE = 'popular_query.csv'
 
 
-# In[15]:
+# In[ ]:
 
 
 dtypes = {
@@ -48,7 +48,7 @@ df = df.head(NUM_QUERIES)
 df.to_csv(OUT_FILE)
 
 
-# In[9]:
+# In[ ]:
 
 
 

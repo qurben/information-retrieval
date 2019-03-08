@@ -13,7 +13,7 @@ import shutil
 import gzip
 import glob
 import os.path
-import pandas
+import pandas as pd
 
 DATA_ZIP_FILE = 'AOL_search_data_leak_2006.zip'
 DATA_DIR = 'AOL-user-ct-collection'
@@ -76,17 +76,11 @@ dtypes = {
     'ClickUrl': 'str',
 }
 
-files = (pandas.read_csv(f, sep="\t", dtype=dtypes) for f in txt_files)
+files = (pd.read_csv(f, sep="\t", dtype=dtypes) for f in txt_files)
     
-frame = pandas.concat(files, ignore_index=True)
+frame = pd.concat(files, ignore_index=True)
 
 frame.sort_values('QueryTime', inplace=True)
 
 frame.to_csv(OUT_FILE)
-
-
-# In[ ]:
-
-
-
 
