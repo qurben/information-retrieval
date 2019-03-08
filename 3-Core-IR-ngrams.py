@@ -13,7 +13,8 @@ import dask.dataframe as dd
 import re
 
 IN_FILE = 'background.csv'
-SUFFIX_FILE = 'total_data_ngrams_punct.csv'
+SUFFIX_FILE = 'total_data_ngrams.csv'
+POPULAR_SUFFIX_FILE = 'popular_suffix.csv'
 CHUNK_SIZE = 10000
 MAX_NUMBER_OF_NGRAMS = 3
 
@@ -22,8 +23,8 @@ MAX_NUMBER_OF_NGRAMS = 3
 
 
 def suffix_ngrams(string):
-    if string == '-': return # Remove single - strings
-    string = re.sub('- |\'', '', string) # Remove - used as separator and single '
+    string = re.sub('-|\'', '', string) # Remove - and '
+    string = re.sub('  ', ' ', string) # Remove double space (can be caused by removing a -)
     words = (' ' + string).split()
     num_ngrams = min(len(words), MAX_NUMBER_OF_NGRAMS)
     
@@ -83,5 +84,5 @@ for df in chunks:
 df = pd.read_csv(SUFFIX_FILE, header=None, names=['ngram'])
 df = dd.from_pandas(df, chunksize=CHUNK_SIZE)
 df = df.groupby('ngram').agg('size').compute()        .reset_index(name='counts')        .sort_values('counts', ascending=False)
-df.to_csv('popular_suffix_punct.csv')
+df.to_csv(POPULAR_SUFFIX_FILE)
 
