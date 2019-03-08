@@ -25,6 +25,7 @@ OUT_FILE = 'popular_query.csv'
 
 
 dtypes = {
+    'Index': 'int64',
     'AnonID': 'str',
     'Query': 'str',
     'QueryTime': 'str',

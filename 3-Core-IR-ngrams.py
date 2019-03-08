@@ -12,7 +12,7 @@ import pandas as pd
 import dask.dataframe as dd
 import re
 
-IN_FILE = 'background.csv'
+IN_FILE = 'background_normalized.csv'
 SUFFIX_FILE = 'total_data_ngrams.csv'
 POPULAR_SUFFIX_FILE = 'popular_suffix.csv'
 CHUNK_SIZE = 10000
@@ -23,8 +23,6 @@ MAX_NUMBER_OF_NGRAMS = 3
 
 
 def suffix_ngrams(string):
-    string = re.sub('-|\'', '', string) # Remove - and '
-    string = re.sub('  ', ' ', string) # Remove double space (can be caused by removing a -)
     words = (' ' + string).split()
     num_ngrams = min(len(words), MAX_NUMBER_OF_NGRAMS)
     
@@ -41,6 +39,7 @@ with open(SUFFIX_FILE, 'w') as the_file: the_file.write('')
 
 
 dtypes = {
+    'Index': 'int64',
     'AnonID': 'str',
     'Query': 'str',
     'QueryTime': 'str',
@@ -73,7 +72,7 @@ for df in chunks:
     # 5. Melt with the index as id, this flattens the ngrams list
     # 6. Drop the variable and index columns, they are not interesting anymore
     # 7. Drop any empty values (any rows with less than NUMBER_OF_NGRAMS ngrams.
-    df = df.Query.apply(suffix_ngrams).apply(pd.Series)         .merge(df, right_index = True, left_index = True)         .drop(['Query'], axis=1)         .reset_index()         .melt(id_vars = ['index'], value_name = "ngram")         .drop(['variable', 'index'], axis = 1)         .dropna()
+    df = df.Query.apply(suffix_ngrams).apply(pd.Series)         .merge(df, right_index = True, left_index = True)         .drop(['Query'], axis=1)         .reset_index()         .melt(id_vars = ['Index'], value_name = "ngram")         .drop(['variable', 'Index'], axis = 1)         .dropna()
     
     df.to_csv(SUFFIX_FILE, mode='a', header=False, index=False)
 

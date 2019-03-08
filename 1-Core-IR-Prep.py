@@ -82,5 +82,9 @@ frame = pd.concat(files, ignore_index=True)
 
 frame.sort_values('QueryTime', inplace=True)
 
+frame.reset_index(inplace=True, drop=True)
+
+frame.index.name = 'Index'
+
 frame.to_csv(OUT_FILE)
 

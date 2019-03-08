@@ -19,6 +19,7 @@
 
 import pandas as pd
 import os.path
+from util.normalize import normalize_csv
 
 CHUNK_SIZE = 100000
 IN_FILE = 'total_data.csv'
@@ -42,12 +43,15 @@ validation_end = "2006-05-21 23:59:59"
 test_end = "2006-05-28 23:59:59"
 
 dtypes = {
+    'Index': 'int64',
     'AnonID': 'str',
     'Query': 'str',
     'QueryTime': 'str',
     'ItemRank': 'str',
     'ClickUrl': 'str',
 }
+
+files = ['background.csv', 'training.csv', 'validation.csv', 'test.csv']
 
 
 # In[ ]:
@@ -56,7 +60,7 @@ dtypes = {
 with open(IN_FILE, 'r') as in_file:
     header = in_file.readline()
 
-for file in list(['background.csv', 'training.csv', 'validation.csv', 'test.csv']):
+for file in files:
     with open(file, 'w') as the_file:
         the_file.write(header)
 
@@ -65,7 +69,7 @@ for file in list(['background.csv', 'training.csv', 'validation.csv', 'test.csv'
 
 
 num_chunks = int(sum(1 for row in open(IN_FILE, 'r')) / CHUNK_SIZE) + 1
-chunks = pd.read_csv(IN_FILE, dtype=dtypes, index_col=0, chunksize=CHUNK_SIZE)
+chunks = pd.read_csv(IN_FILE, dtype=dtypes, index_col='Index', chunksize=CHUNK_SIZE)
 chunk_id = iter(range(1, num_chunks+1))
 
 
@@ -89,5 +93,8 @@ for df in chunks:
 # In[ ]:
 
 
-
+normalize_csv('background.csv', 'background_normalized.csv')
+normalize_csv('training.csv', 'training_normalized.csv')
+normalize_csv('validation.csv', 'validation_normalized.csv')
+normalize_csv('test.csv', 'test_normalized.csv')
 
