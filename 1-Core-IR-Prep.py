@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# # Prep the data
+# 
+# Extract all the files from `AOL_search_data_leak_2006.zip` and concat them into a single file.
+
 # In[ ]:
 
 
@@ -9,10 +13,19 @@ import shutil
 import gzip
 import glob
 import os.path
-import pandas
+import pandas as pd
 
 DATA_ZIP_FILE = 'AOL_search_data_leak_2006.zip'
 DATA_DIR = 'AOL-user-ct-collection'
+OUT_FILE = 'total_data.csv'
+
+
+# In[ ]:
+
+
+if os.path.isfile(OUT_FILE):
+    name = input('Output file already exists, do you want to continue? (y/n): ')
+    if name != 'y': exit()
 
 
 # In[ ]:
@@ -63,17 +76,11 @@ dtypes = {
     'ClickUrl': 'str',
 }
 
-files = (pandas.read_csv(f, sep="\t", dtype=dtypes) for f in txt_files)
+files = (pd.read_csv(f, sep="\t", dtype=dtypes) for f in txt_files)
     
-frame = pandas.concat(files, ignore_index=True)
+frame = pd.concat(files, ignore_index=True)
 
 frame.sort_values('QueryTime', inplace=True)
 
-frame.to_csv('data.csv')
-
-
-# In[ ]:
-
-
-
+frame.to_csv(OUT_FILE)
 
