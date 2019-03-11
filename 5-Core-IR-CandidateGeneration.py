@@ -51,9 +51,13 @@ def match_end_term(end_term):
     return list(suffix_df[suffix_df.ngram.str.startswith(end_term)].ngram)
     
 def apply_end_term(row):
-    candidates = []        
     query = original_query = row.iloc[0].Query
-    
+    candidates = [{
+        'Prefix': query,
+        'Suffix': '',
+        'Query': query
+    }]
+        
     while query.find(' ') != -1: # There is more than one word
         term = end_term(query)
         suffixes = match_end_term(term)
@@ -92,7 +96,7 @@ dtypes = {
 }
 
 # only load index and Query
-chunks = pd.read_csv(BASE_FILE, index_col=0, dtype=dtypes, usecols=[0, 1], low_memory=False, chunksize=CHUNK_SIZE)
+chunks = pd.read_csv(BASE_FILE, index_col=0, dtype=dtypes, low_memory=False, chunksize=CHUNK_SIZE)
 
 # Count the number of chunks in this file
 num_chunks = int(sum(1 for row in open(BASE_FILE, 'r')) / CHUNK_SIZE) + 1
@@ -106,15 +110,7 @@ for df in chunks:
     print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
     # Any empty query is not interesting
     df.dropna(inplace=True)
-    
-    # 1. Apply suffix_ngrams, creates a list of ngrams for each row
-    # 2. Apply pd.Series, creates a series for this list
-    # 3. Merge the applied series with the dataframe
-    # 3. Drop the Query column, we don't need it anymore
-    # 4. Reset the index, make it available for selection
-    # 5. Melt with the index as id, this flattens the ngrams list
-    # 6. Drop the variable and index columns, they are not interesting anymore
-    # 7. Drop any empty values (any rows with less than NUMBER_OF_NGRAMS ngrams.
+
     df2 = df.groupby(df.columns.tolist(), group_keys=False).apply(apply_end_term)
     
     df2.to_csv(OUT_FILE, mode='a', header=False, index=False)

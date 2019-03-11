@@ -23,12 +23,66 @@
 
 
 import pandas as pd
+import nltk
 
-TRAINING_FILE = 'training_normalized.csv'
+TRAINING_FILE = 'short.csv'
+FEATURES_FILE = 'features.csv'
+
+CHUNK_SIZE = 10000
+
+
+# ## Ngram based features
+
+# In[ ]:
+
+
+ngram_cols = ['ngramfreq_{}'.format(i) for i in range(1,7)]
+
+def ngram_apply(row):
+    query = row.Query
+    words = query.split()
+    ngrams = []
+    
+    print([a for a in nltk.ngrams(words, 2)])
+    
+    for n in range(1,7):
+        ngrams.append(sum(1 for _ in nltk.ngrams(words, n)))
+    
+    return pd.Series(ngrams)
 
 
 # In[ ]:
 
 
+dtypes = {
+    'Index': 'int64',
+    'AnonID': 'str',
+    'Query': 'str',
+    'QueryTime': 'str',
+    'ItemRank': 'str',
+    'ClickURL': 'str',
+}
 
+# only load index and Query
+chunks = pd.read_csv(TRAINING_FILE, index_col=0, dtype=dtypes, usecols=[0, 2], low_memory=False, chunksize=CHUNK_SIZE)
+
+# Count the number of chunks in this file
+num_chunks = int(sum(1 for row in open(TRAINING_FILE, 'r')) / CHUNK_SIZE) + 1
+chunk_id = iter(range(1, num_chunks+1))
+
+
+# In[ ]:
+
+
+for df in chunks:
+    print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
+    
+    # Any empty query is not interesting
+    df.dropna(inplace=True)
+
+    df = df.reset_index(drop=True)
+    
+    df[ngram_cols] = df.apply(ngram_apply, axis=1)
+    
+    print(df)
 

@@ -10,7 +10,7 @@ IN_FILE = 'validation.csv'
 OUT_FILE = 'validation_normalized.csv'
 
 def normalize_query(query, axis):
-    return re.sub('-|\'|\.', '', query)
+    return re.sub('-|\'|\.', '', query).strip()
 
 def normalize_df(df):
     df['Query'] = df.Query.dropna().apply(normalize_query, axis=1, meta=('str'))
