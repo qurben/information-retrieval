@@ -17,7 +17,7 @@ import pandas as pd
 
 NUM_QUERIES = 724340
 CHUNK_SIZE = 10000
-IN_FILE = 'background.csv'
+IN_FILE = 'background_normalized.csv'
 OUT_FILE = 'popular_query.csv'
 
 
