@@ -25,7 +25,7 @@
 import pandas as pd
 import nltk
 
-TRAINING_FILE = 'short.csv'
+TRAINING_FILE = 'popular_query.csv'
 FEATURES_FILE = 'features.csv'
 
 CHUNK_SIZE = 10000
