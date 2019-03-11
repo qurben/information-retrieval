@@ -27,6 +27,7 @@ import nltk
 
 TRAINING_FILE = 'popular_query.csv'
 FEATURES_FILE = 'features.csv'
+SUFFIX_FILE = 'popular_suffix.csv'
 
 CHUNK_SIZE = 10000
 
@@ -38,17 +39,31 @@ CHUNK_SIZE = 10000
 
 ngram_cols = ['ngramfreq_{}'.format(i) for i in range(1,7)]
 
-def ngram_apply(row):
+def ngram_apply(row, suffix_df):
     query = row.Query
     words = query.split()
     ngrams = []
-    
-    print([a for a in nltk.ngrams(words, 2)])
-    
+        
     for n in range(1,7):
-        ngrams.append(sum(1 for _ in nltk.ngrams(words, n)))
+        s = 0
+        for ngram in nltk.ngrams(words, n):
+            try:
+                counts = int(suffix_df.at[' '.join(ngram), 'counts'])
+            except KeyError:
+                counts = 0
+
+            s += counts
+            
+        ngrams.append(s)
     
     return pd.Series(ngrams)
+
+
+# In[ ]:
+
+
+suffix_df = pd.read_csv(SUFFIX_FILE, index_col=0, dtype=object, low_memory=False)
+suffix_df = suffix_df.set_index('ngram')
 
 
 # In[ ]:
@@ -64,7 +79,7 @@ dtypes = {
 }
 
 # only load index and Query
-chunks = pd.read_csv(TRAINING_FILE, index_col=0, dtype=dtypes, usecols=[0, 2], low_memory=False, chunksize=CHUNK_SIZE)
+chunks = pd.read_csv(TRAINING_FILE, index_col=0, dtype=dtypes, low_memory=False, chunksize=CHUNK_SIZE)
 
 # Count the number of chunks in this file
 num_chunks = int(sum(1 for row in open(TRAINING_FILE, 'r')) / CHUNK_SIZE) + 1
@@ -82,7 +97,7 @@ for df in chunks:
 
     df = df.reset_index(drop=True)
     
-    df[ngram_cols] = df.apply(ngram_apply, axis=1)
+    df[ngram_cols] = df.apply(ngram_apply, suffix_df=suffix_df, axis=1)
     
-    print(df)
+    df.to_csv(FEATURES_FILE, mode='a', header=False)
 
