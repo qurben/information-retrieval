@@ -149,3 +149,24 @@ suffix based candidates:
 - 50K most frequent suffixes
 - 75K most frequent suffixes
 - 100K most frequent suffixes (validate)
+
+### Feature file format
+
+|Col|Desc|
+|--|--
+|prefix|
+|suggestion candidate|
+|ngramfreq_1|
+|ngramfreq_2|
+|ngramfreq_3|
+|ngramfreq_4|
+|ngramfreq_5|
+|ngramfreq_6|
+|query freq|Frequency of the query in `background`
+|prefix_len_c|Length of the prefix in characters
+|prefix_len_w|Length of the prefix in words
+|suffix_len_c|Length of the suffix in characters
+|suffix_len_w|Length of the suffix in words
+|len_c|Length of the candidate in characters
+|len_w|Length of the candidate in words
+|end_space|Wether the prefix ends with a space
