@@ -6,6 +6,8 @@ import os
 import os.path
 import uuid
 
+from dask import to_csv
+
 IN_FILE = 'validation.csv'
 OUT_FILE = 'validation_normalized.csv'
 
@@ -22,25 +24,6 @@ def normalize_csv(in_file, out_file):
 
     df = dd.read_csv(in_file, dtype=object)
 
-    intermediary_files = os.path.join('.tmp', '{}_*.csv'.format(uuid.uuid1()))
-    
-    normalize_df(df).to_csv(intermediary_files, index=False)
-    concat_csv(intermediary_files, out_file)
+    df = normalize_df(df)
 
-def concat_csv(infiles, out, rm=True):
-    filenames = glob.glob(infiles)
-    with open(out, 'w') as outfile:
-        with open(filenames[0]) as infile:
-            outfile.write(next(infile))
-
-        for fname in filenames:
-            with open(fname) as infile:
-                next(infile)
-                for line in infile:
-                    outfile.write(line)
-            
-            if rm: os.remove(fname)
-
-
-if __name__ == '__main__':
-    normalize_csv(IN_FILE, OUT_FILE)
+    to_csv(df, out_file)

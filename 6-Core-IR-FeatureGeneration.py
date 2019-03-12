@@ -23,7 +23,10 @@
 
 
 import pandas as pd
+import dask.dataframe as dd
 import nltk
+
+from util.dask import to_csv
 
 TRAINING_FILE = 'generated_candidate_head.csv'
 FEATURES_FILE = 'training_features.csv'
@@ -68,46 +71,23 @@ def query_freq(query, query_df):
 # In[ ]:
 
 
-suffix_df = pd.read_csv(SUFFIX_FILE, index_col=0, dtype=object, low_memory=False)
-suffix_df = suffix_df.set_index('ngram')
-
+suffix_df = pd.read_csv(SUFFIX_FILE, index_col='ngram', dtype=object, low_memory=False)
 query_df = pd.read_csv(QUERY_FILE, index_col='Query', dtype=object, low_memory=False)
 
 
 # In[ ]:
 
 
-dtypes = {
-    'Prefix': 'str',
-    'Query': 'str',
-    'Suffix': 'str',
-    'ItemRank': 'str',
-    'ClickURL': 'str',
-}
+def calculate_features(in_file, out_file):
+    df = dd.read_csv(in_file, dtype=object)
 
-# only load index and Query
-chunks = pd.read_csv(TRAINING_FILE, dtype=dtypes, low_memory=False, chunksize=CHUNK_SIZE)
-
-# Count the number of chunks in this file
-num_chunks = int(sum(1 for row in open(TRAINING_FILE, 'r')) / CHUNK_SIZE) + 1
-chunk_id = iter(range(1, num_chunks+1))
-
-
-# In[ ]:
-
-
-with open(FEATURES_FILE, 'w') as the_file: the_file.write(',Prefix,Query,Suffix,ngramfreq_1,ngramfreq_2,ngramfreq_3,ngramfreq_4,ngramfreq_5,ngramfreq_5,query_freq,prefix_len_c,prefix_len_w,suffix_len_c,suffix_len_w,len_c,len_w,end_space\n')
-
-for df in chunks:
-    print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
-    
     # Any empty query is not interesting
-    df.dropna(inplace=True)
+    df = df.dropna()
 
     df = df.reset_index(drop=True)
-    
+
     df[ngram_cols] = df.Query.apply(ngram_apply, suffix_df=suffix_df)
-    df['query_freq'] = df.Query.apply(query_freq, query_df=query_df)
+    df['query_freq'] = df.Query.apply(query_freq, query_df=query_df, meta=('freq', int))
     df['prefix_len_c'] = df.Prefix.str.len()
     df['prefix_len_w'] = df.Prefix.str.split().str.len()
     df['suffix_len_c'] = df.Suffix.str.len()
@@ -115,7 +95,14 @@ for df in chunks:
     df['len_c'] = df.Query.str.len()
     df['len_w'] = df.Query.str.split().str.len()
     df['end_space'] = df.Prefix.str.endswith(' ').astype(int)
-    
-    
-    df.to_csv(FEATURES_FILE, mode='a', header=False)
+
+    to_csv(df, out_file)
+
+
+# In[ ]:
+
+
+calculate_features('training_sampled.csv', 'training_features.csv')
+calculate_features('test_sampled.csv', 'test_features.csv')
+calculate_features('validation_sampled.csv', 'validation_features.cvs')
 
