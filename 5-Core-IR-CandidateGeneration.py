@@ -19,7 +19,7 @@ import pandas as pd
 import dask.dataframe as dd
 
 POPULAR_SUFFIX_FILE = 'popular_suffix.csv'
-BASE_FILE = 'popular_query.csv'
+BASE_FILE = 'training_normalized.csv'
 OUT_FILE = 'generated_candidate.csv'
 
 CHUNK_SIZE = 10000
@@ -62,7 +62,7 @@ def apply_end_term(row):
         term = end_term(query)
         suffixes = match_end_term(term)
                 
-        for suffix in suffixes:
+        for suffix in suffixes[:10]:
             new_query = query + suffix[len(term):]
             
             if new_query != original_query or True:
@@ -112,6 +112,6 @@ for df in chunks:
     df.dropna(inplace=True)
 
     df2 = df.groupby(df.columns.tolist(), group_keys=False).apply(apply_end_term)
-    
+
     df2.to_csv(OUT_FILE, mode='a', header=False, index=False)
 
