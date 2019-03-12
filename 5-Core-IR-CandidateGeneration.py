@@ -20,7 +20,7 @@ import dask.dataframe as dd
 
 POPULAR_SUFFIX_FILE = 'popular_suffix.csv'
 BASE_FILE = 'training_normalized.csv'
-OUT_FILE = 'generated_candidate.csv'
+OUT_FILE = 'training_sampled.csv'
 
 CHUNK_SIZE = 10000
 N_POPULAR_SUFFIX = 1000
