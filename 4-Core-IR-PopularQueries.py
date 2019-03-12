@@ -44,7 +44,8 @@ df = df.groupby('Query').agg('size').compute().reset_index(name='counts')
 print('Group by finished')
 
 df = df.sort_values('counts', ascending=False)
-df = df.head(NUM_QUERIES)
+
+print('Sort finished')
 
 df.to_csv(OUT_FILE)
 
