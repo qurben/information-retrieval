@@ -56,18 +56,6 @@ After running the scripts several files are created.
 |`popular_query.csv`|Top 724,340 queries from background|[4]/[3nb]
 |`generated_candidate.csv`|Candidates generated from background|[5]/[5nb]
 
-[1]: ./1-Core-IR-Prep.py
-[1nb]: ./1-Core-IR-Prep.ipynb
-[2]: ./2-Core-IR-Split.py
-[2nb]: ./2-Core-IR-Split.ipynb
-[3]: ./3-Core-IR-ngrams.py
-[3nb]: ./3-Core-IR-ngrams.ipynb
-[4]: ./4-Core-IR-PopularQueries.py
-[4nb]: ./4-Core-IR-PopularQueries.ipynb
-[5]: ./5-Core-IR-CandidateGeneration.py
-[5nb]: ./5-Core-IR-CandidateGeneration.ipynb
-[6]: ./6-Core-IR-FeatureGeneration.py
-[6nb]: ./6-Core-IR-FeatureGeneration.ipynb
 
 ## Steps
 
@@ -210,3 +198,36 @@ Given a model which for some prefix returns a set of 8 suggestions.
 
 For each element in the validation set generate all prefixes and for each prefix the MMR is
 calculated by `1 / rank` or `0` if the actual query is not in the rank.
+
+## Flows
+
+|Source|Thru|Result|
+|--|--|--
+|`.zip`|[Prep]|`total_data.csv`
+|`total_data.csv`|[Split]|`{background,test,training,validation}.csv`
+|`{background,test,training,validation}.csv`|[Split]|`{background,test,training,validation}_normalized.csv`
+|`background_normalized.csv`|[ngrams]|`popular_suffix.csv`
+|`background_normalized.csv`|[PopularQueries]|`popular_query.csv`
+|`test_normalized.csv`|[sampling]|`test_sampled.csv`
+|`validate_normalized.csv`|[sampling]|`validate_sampled.csv`
+|`training_normalized.csv`|[CandidateGeneration]|`training_sampled.csv`
+|`{test,training,validation}_sampled.csv`|[FeatureGeneration]|`{test,training,validation}_features.csv`
+
+[1]: ./1-Core-IR-Prep.py
+[1nb]: ./1-Core-IR-Prep.ipynb
+[Prep]: ./1-Core-IR-Prep.ipynb
+[2]: ./2-Core-IR-Split.py
+[2nb]: ./2-Core-IR-Split.ipynb
+[Split]: ./2-Core-IR-Split.ipynb
+[3]: ./3-Core-IR-ngrams.py
+[3nb]: ./3-Core-IR-ngrams.ipynb
+[ngrams]: ./3-Core-IR-ngrams.ipynb
+[4]: ./4-Core-IR-PopularQueries.py
+[4nb]: ./4-Core-IR-PopularQueries.ipynb
+[PopularQueries]: ./4-Core-IR-PopularQueries.ipynb
+[5]: ./5-Core-IR-CandidateGeneration.py
+[5nb]: ./5-Core-IR-CandidateGeneration.ipynb
+[CandidateGeneration]: ./5-Core-IR-CandidateGeneration.ipynb
+[6]: ./6-Core-IR-FeatureGeneration.py
+[6nb]: ./6-Core-IR-FeatureGeneration.ipynb
+[FeatureGeneration]: ./6-Core-IR-FeatureGeneration.ipynb
