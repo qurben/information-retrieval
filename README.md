@@ -203,3 +203,10 @@ suffix based candidates:
 |len_c|Length of the candidate in characters
 |len_w|Length of the candidate in words
 |end_space|Wether the prefix ends with a space
+
+## Validation / Testing
+
+Given a model which for some prefix returns a set of 8 suggestions. 
+
+For each element in the validation set generate all prefixes and for each prefix the MMR is
+calculated by `1 / rank` or `0` if the actual query is not in the rank.
