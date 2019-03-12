@@ -228,6 +228,6 @@ calculated by `1 / rank` or `0` if the actual query is not in the rank.
 [5]: ./5-Core-IR-CandidateGeneration.py
 [5nb]: ./5-Core-IR-CandidateGeneration.ipynb
 [CandidateGeneration]: ./5-Core-IR-CandidateGeneration.ipynb
-[6]: ./6-Core-IR-FeatureGeneration.py
-[6nb]: ./6-Core-IR-FeatureGeneration.ipynb
-[FeatureGeneration]: ./6-Core-IR-FeatureGeneration.ipynb
+[7]: ./7-Core-IR-FeatureGeneration.py
+[7nb]: ./7-Core-IR-FeatureGeneration.ipynb
+[FeatureGeneration]: ./7-Core-IR-FeatureGeneration.ipynb
