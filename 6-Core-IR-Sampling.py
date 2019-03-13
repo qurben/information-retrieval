@@ -25,10 +25,13 @@ dtypes = {
 
 
 def sample_query(query):
-    yield query
-    while query.rfind(' ') != -1:
+    samples = [query]
+    index = 0
+    while query.rfind(' ') != -1 and index < 4:
+        index += 1
         query = query[:query.rfind(' ')]
-        yield query
+        samples.append(query)
+    return pd.Series(samples)
         
         
 def extract_suffix(row):
@@ -61,7 +64,7 @@ def sample_dataset(in_file, out_file):
         # 4. Reset the index, make it available for selection
         # 5. Melt with the index and Query as id, this flattens the ngrams list
         # 6. Drop the variable column, they are not interesting anymore
-        df = df.Query.apply(sample_query).apply(pd.Series)             .merge(df, right_index = True, left_index = True)             .reset_index()             .melt(id_vars = ['Index', 'Query'], value_name = 'Prefix')             .drop(['variable'], axis = 1)
+        df = df.Query.apply(sample_query)             .merge(df, right_index = True, left_index = True)             .reset_index()             .melt(id_vars = ['Index', 'Query'], value_name = 'Prefix')             .drop(['variable'], axis = 1)
         
         df['Suffix'] = ''
 
