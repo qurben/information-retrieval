@@ -11,9 +11,9 @@ import pandas as pd
 import math
 import matplotlib
 
-TEST_FILE = "../../../Downloads/Fold1/test.txt"
-TRAIN_FILE = "../../../Downloads/Fold1/train.txt"
-VALIDATE_FILE = "../../../Downloads/Fold1/vali.txt"
+TEST_FILE = "./test_features.txt"
+TRAIN_FILE = "./training_features.txt"
+VALIDATE_FILE = "./validation_features.txt"
 
 TRAINED_MODEL = "trained.model"
 
@@ -30,9 +30,10 @@ def rr(data):
             return 0
 
 def averagePrecision(data):
+    if sum(data)==0:
+        return 0
     total = len(data)
     return data[data == 1]/total
-
 
 # In[ ]:
 
@@ -44,7 +45,7 @@ params = {
     'eval_metric': ['map'],
 }
 
-model =  xgb.train(params, dtrain, num_boost_round=3, evals=[(dvalidation, 'validation')], early_stopping_rounds=30, verbose_eval=True)
+model =  xgb.train(params, dtrain, num_boost_round=300, evals=[(dvalidation, 'validation')], early_stopping_rounds=30, verbose_eval=True)
 model.save_model(TRAINED_MODEL)
 
 
@@ -65,8 +66,25 @@ print(preds)
 testing_labels = dtest.get_label()
 
 
-# TODO groups uitrekenen
-groups = [135, 140, 100, 100, 100, 150, 150, 100, 234]
+groups = []
+
+fi = open(TEST_FILE)
+size = 1
+
+group = ""
+for line in fi:
+    if not line:
+        break
+    splits = line.strip().split(" ")
+    if splits[1] != group:
+        group = splits[1]
+        groups.append(size)
+        size = 1
+
+    size += 1
+
+# print(group)
+# print(groups)
 
 nquerys=range(0,len(groups))
 lower=0
