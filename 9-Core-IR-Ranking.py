@@ -64,7 +64,7 @@ print(preds)
 
 testing_labels = dtest.get_label()
 
-groups = [135, 140, 100, 100, 100]
+groups = [135, 140, 100, 100, 100, 150, 150, 100, 234]
 
 nquerys=range(0,len(groups))
 lower=0

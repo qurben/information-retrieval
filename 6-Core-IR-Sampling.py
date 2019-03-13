@@ -60,16 +60,13 @@ def sample_dataset(in_file, out_file):
         # 4. Reset the index, make it available for selection
         # 5. Melt with the index and Query as id, this flattens the ngrams list
         # 6. Drop the variable column, they are not interesting anymore
-        df = df.Query.apply(sample_query).apply(pd.Series)             .merge(df, right_index = True, left_index = True)             .reset_index()             .melt(id_vars = ['Index', 'Query'], value_name = 'Prefix')             .drop(['variable'], axis = 1)
-        
-        df['Suffix'] = ''
+        df = df.Query.apply(sample_query).apply(pd.Series)             .merge(df, right_index = True, left_index = True)             .reset_index()             .melt(id_vars = ['Index', 'Query'], value_name = "Prefix")             .drop(['variable'], axis = 1)
 
         df.to_csv(out_file, mode='a', header=first, index=False)
         first = False
 
 
 # In[ ]:
-
 
 sample_dataset('test_normalized.csv', 'test_sampled.csv')
 sample_dataset('validation_normalized.csv', 'validation_sampled.csv')

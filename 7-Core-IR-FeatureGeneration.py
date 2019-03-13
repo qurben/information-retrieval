@@ -83,12 +83,9 @@ def calculate_features(in_file, svmlight_file, out_file):
     df = df.fillna('')
 
     df = df.reset_index(drop=True)
-    
-    qids = df.Prefix.unique()
-    qids = pd.Series(np.arange(len(qids)), qids)
-        
-    df['prefix_id'] = df.Prefix.apply(lambda x : qids.at[x])
-    
+    columns = list(df)
+    columns = ['Prefix' if x == 'prefix' else x for x in columns]
+    df.columns = columns
     df[ngram_cols] = df.Query.apply(ngram_apply, suffix_df=suffix_df)
     df['query_freq'] = df.Query.apply(query_freq, query_df=query_df)
     df['is_relevant'] = df['query_freq'].apply(lambda x : 1 if x > 0 else 0)
@@ -116,7 +113,7 @@ def calculate_features(in_file, svmlight_file, out_file):
 # In[ ]:
 
 
-calculate_features('training_sampled.csv', 'training_features.svmlight.txt', 'training_features.csv')
-calculate_features('test_sampled.csv', 'test_features.svmlight.txt', 'test_features.csv')
-calculate_features('validation_sampled.csv', 'validation_features.svmlight.txt', 'validation_features.csv')
+# calculate_features('training_sampled.csv', 'training_features.csv')
+calculate_features('test_sampled.csv', 'test_features.csv')
+# calculate_features('validation_sampled.csv', 'validation_features.cvs')
 
