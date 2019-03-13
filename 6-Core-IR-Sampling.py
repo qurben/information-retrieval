@@ -25,10 +25,11 @@ dtypes = {
 
 
 def sample_query(query):
+    yield query
     while query.rfind(' ') != -1:
+        query = query[:query.rfind(' ')]
         yield query
         
-        query = query[:query.rfind(' ')]
         
 def extract_suffix(row):
     query = row.Query
