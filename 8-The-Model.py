@@ -8,44 +8,37 @@
 # In[ ]:
 
 
-import pandas as pd
+import numpy as np
 import xgboost as xgb
+import pandas as pd
+import math
+import matplotlib
 
-TRAINING = 'training_features.csv'
-TEST = 'test_features.csv'
-VALIDATION = 'validation_features.csv'
+TEST_FILE = "./test_features.txt"
+TRAIN_FILE = "./training_features.txt"
+VALIDATE_FILE = "./validation_features.txt"
+
+TRAINED_MODEL = "trained.model"
 
 
 # In[ ]:
 
 
-def to_matrix(candidates):
-    candidates = candidates.drop('Prefix', axis=1)
-    candidates = candidates.drop('Suffix', axis=1)
-    dmatrix = xgb.DMatrix(candidates.drop('Query', axis=1), candidates['Query'])
-    return dmatrix
+def rr(data):
+    if sum(data)==0:
+        return 0
+    else:
+        try:
+            index = data.index(1, 0, 8)
+            return 1/(index+1)
+        except ValueError:
+            return 0
 
-def train(train, validation):
-    dtrain = to_matrix(train)
-    dvalidation = to_matrix(validation)
-
-    params = {
-        'objective' : 'rank:pairwise',
-        'eval_metric': 'error',
-    }
-
-    return xgb.train(
-        params, 
-        dtrain, 
-        num_boost_round=300, 
-        evals=[(dvalidation, 'validation')], 
-        early_stopping_rounds=30, 
-        verbose_eval=True
-    )
-
-def rank(test, model):
-    dmatrix = to_matrix(test)
-    return model.predict(test, ntree_limit=model.best_ntree_limit)
+def averagePrecision(data):
+    if sum(data)==0:
+        return 0
+    total = len(data)
+    return data[data == 1]/total
 
 
 # Load the datasets used for training
@@ -53,37 +46,34 @@ def rank(test, model):
 # In[ ]:
 
 
-training_data = pd.read_csv(TRAINING, low_memory=False)
-validation_data = pd.read_csv(VALIDATION, low_memory=False)
+dtrain = xgb.DMatrix(TRAIN_FILE)
+dvalidation = xgb.DMatrix(VALIDATE_FILE)
+
+params = {
+    'objective' : 'rank:pairwise',
+    'eval_metric': ['map'],
+}
+
+model =  xgb.train(params, dtrain, num_boost_round=300, evals=[(dvalidation, 'validation')], early_stopping_rounds=30, verbose_eval=True)
+model.save_model(TRAINED_MODEL)
 
 
-# Train the model using these sets
-
-# In[ ]:
-
-
-model = train(training_data, validation_data)
-
-
-# Delete the datasets from the memory
-
-# In[ ]:
-
-
-del training_data
-del validation_data
-
-
-# Load the test data and verify the results
+# Restore the model from file
 
 # In[ ]:
 
 
-test_data = pd.read_csv(TEST, low_memory=False)
+dtest = xgb.DMatrix(TEST_FILE)
 
+booster = xgb.Booster()
+booster.load_model(TRAINED_MODEL)
+
+
+# Calculate the results
 
 # In[ ]:
 
 
-result = rank(test_data, model)
+preds = booster.predict(dtest, ntree_limit= model.best_ntree_limit)
+print(preds)
 

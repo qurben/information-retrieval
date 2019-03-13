@@ -78,7 +78,7 @@ query_df = pd.read_csv(QUERY_FILE, index_col='Query', dtype=object, low_memory=F
 # In[ ]:
 
 
-def calculate_features(in_file, svmlight_file, out_file):
+def calculate_features(in_file, svmlight_file):
     chunks = pd.read_csv(in_file, dtype=object, low_memory=False, chunksize=30000)
 
     df2 = pd.read_csv(in_file, dtype=object, low_memory=False)
@@ -87,31 +87,24 @@ def calculate_features(in_file, svmlight_file, out_file):
 
     qids = df2.Prefix.unique()
     qids = pd.Series(np.arange(len(qids)), qids)
+        
+    num_chunks = int(sum(1 for row in open(in_file, 'r')) / CHUNK_SIZE) + 1
+    chunk_id = iter(range(1, num_chunks+1))
     
-    print("before prefix id")
-    
-    index = 0
     for df in chunks:
-        index += 1
-        
-        print('index is now {}'.format(index))
-        
+        print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
+                
         df = df.fillna('')
+        
+        ## Generate features for each row
         df['prefix_id'] = df.Prefix.apply(lambda x : qids.loc[x])
-
         df[ngram_cols] = df.Query.apply(ngram_apply, suffix_df=suffix_df)
-
-        print("ngram_cols")
-
         df['query_freq'] = df.Query.apply(query_freq, query_df=query_df)
         df['is_relevant'] = df['query_freq'].apply(lambda x : 1 if x > 0 else 0)
         df['prefix_len_c'] = df.Prefix.str.len()
         df['prefix_len_w'] = df.Prefix.str.split().str.len()
         df['suffix_len_c'] = df.Suffix.str.len()
         df['suffix_len_w'] = df.Suffix.str.split().str.len()
-
-        print("suffix-len")
-
         df['len_c'] = df.Query.str.len()
         df['len_w'] = df.Query.str.split().str.len()
         df['end_space'] = df.Prefix.str.endswith(' ').astype(int)
@@ -124,15 +117,13 @@ def calculate_features(in_file, svmlight_file, out_file):
 
         data = df.drop('prefix_id', axis=1).drop('is_relevant', axis=1).drop('Index', axis=1)
 
-        print("gonna dump")
-
         dump_svmlight_file(data, y=df['is_relevant'], query_id=df['prefix_id'], f=svmlight_file.format(index))
 
 
 # In[ ]:
 
 
-# calculate_features('training_sampled.csv', 'training_features.svmlight.txt', 'training_features.csv')
-# calculate_features('test_sampled.csv', 'test_features_{}.svmlight.txt', 'test_features.csv')
-calculate_features('validation_sampled.csv', 'validation_features_{}.svmlight.txt', 'validation_features.csv')
+calculate_features('training_sampled.csv', 'training_features.svmlight.txt', 'training_features.csv')
+calculate_features('test_sampled.csv', 'test_features_{}.svmlight.txt', 'test_features.csv')
+calculate_features('validation_sampled.csv', 'validation_features_{}.svmlight.txt')
 
