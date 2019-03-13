@@ -79,44 +79,60 @@ query_df = pd.read_csv(QUERY_FILE, index_col='Query', dtype=object, low_memory=F
 
 
 def calculate_features(in_file, svmlight_file, out_file):
-    df = pd.read_csv(in_file, dtype=object)
-    df = df.fillna('')
+    chunks = pd.read_csv(in_file, dtype=object, low_memory=False, chunksize=30000)
 
-    df = df.reset_index(drop=True)
-    
-    qids = df.Prefix.unique()
+    df2 = pd.read_csv(in_file, dtype=object, low_memory=False)
+    df2 = df2.fillna('')
+    df2 = df2.reset_index(drop=True)
+
+    qids = df2.Prefix.unique()
     qids = pd.Series(np.arange(len(qids)), qids)
+    
+    print("before prefix id")
+    
+    index = 0
+    for df in chunks:
+        index += 1
         
-    df['prefix_id'] = df.Prefix.apply(lambda x : qids.at[x])
-    
-    df[ngram_cols] = df.Query.apply(ngram_apply, suffix_df=suffix_df)
-    df['query_freq'] = df.Query.apply(query_freq, query_df=query_df)
-    df['is_relevant'] = df['query_freq'].apply(lambda x : 1 if x > 0 else 0)
-    df['prefix_len_c'] = df.Prefix.str.len()
-    df['prefix_len_w'] = df.Prefix.str.split().str.len()
-    df['suffix_len_c'] = df.Suffix.str.len()
-    df['suffix_len_w'] = df.Suffix.str.split().str.len()
-    df['len_c'] = df.Query.str.len()
-    df['len_w'] = df.Query.str.split().str.len()
-    df['end_space'] = df.Prefix.str.endswith(' ').astype(int)
-    
-    df = df.drop('Prefix', axis=1)
-    df = df.drop('Query', axis=1)
-    df = df.drop('Suffix', axis=1)
-    
-    df = df.sort_values('prefix_id')
-    
-    data = df.drop('prefix_id', axis=1).drop('is_relevant', axis=1).drop('Index', axis=1)
+        print('index is now {}'.format(index))
         
-    dump_svmlight_file(data, y=df['is_relevant'], query_id=df['prefix_id'], f=svmlight_file)
-    
-    df.to_csv(out_file)
+        df = df.fillna('')
+        df['prefix_id'] = df.Prefix.apply(lambda x : qids.loc[x])
+
+        df[ngram_cols] = df.Query.apply(ngram_apply, suffix_df=suffix_df)
+
+        print("ngram_cols")
+
+        df['query_freq'] = df.Query.apply(query_freq, query_df=query_df)
+        df['is_relevant'] = df['query_freq'].apply(lambda x : 1 if x > 0 else 0)
+        df['prefix_len_c'] = df.Prefix.str.len()
+        df['prefix_len_w'] = df.Prefix.str.split().str.len()
+        df['suffix_len_c'] = df.Suffix.str.len()
+        df['suffix_len_w'] = df.Suffix.str.split().str.len()
+
+        print("suffix-len")
+
+        df['len_c'] = df.Query.str.len()
+        df['len_w'] = df.Query.str.split().str.len()
+        df['end_space'] = df.Prefix.str.endswith(' ').astype(int)
+
+        df = df.drop('Prefix', axis=1)
+        df = df.drop('Query', axis=1)
+        df = df.drop('Suffix', axis=1)
+
+        df = df.sort_values('prefix_id')
+
+        data = df.drop('prefix_id', axis=1).drop('is_relevant', axis=1).drop('Index', axis=1)
+
+        print("gonna dump")
+
+        dump_svmlight_file(data, y=df['is_relevant'], query_id=df['prefix_id'], f=svmlight_file.format(index))
 
 
 # In[ ]:
 
 
-calculate_features('training_sampled.csv', 'training_features.svmlight.txt', 'training_features.csv')
-calculate_features('test_sampled.csv', 'test_features.svmlight.txt', 'test_features.csv')
-calculate_features('validation_sampled.csv', 'validation_features.svmlight.txt', 'validation_features.csv')
+# calculate_features('training_sampled.csv', 'training_features.svmlight.txt', 'training_features.csv')
+# calculate_features('test_sampled.csv', 'test_features_{}.svmlight.txt', 'test_features.csv')
+calculate_features('validation_sampled.csv', 'validation_features_{}.svmlight.txt', 'validation_features.csv')
 
