@@ -10,7 +10,7 @@ def to_csv(dask_df, out_file):
 
     intermediary_files = os.path.join('.tmp', '{}_*.csv'.format(uuid.uuid1()))
     
-    dask_df.to_csv(intermediary_files)
+    dask_df.to_csv(intermediary_files, index=False)
     concat_csv(intermediary_files, out_file)
 
 def concat_csv(infiles, out, rm=True):

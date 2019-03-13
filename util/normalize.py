@@ -6,7 +6,7 @@ import os
 import os.path
 import uuid
 
-from dask import to_csv
+from .dask import to_csv
 
 IN_FILE = 'validation.csv'
 OUT_FILE = 'validation_normalized.csv'
