@@ -34,7 +34,7 @@ dtypes = {
 }
 
 # only load index and Query
-df = pd.read_csv(IN_FILE, dtype=dtypes, usecols=[0, 2])
+df = pd.read_csv(IN_FILE, dtype=dtypes, usecols=[1, 3])
 df = dd.from_pandas(df, chunksize=CHUNK_SIZE)
 
 print('CSV loaded')

@@ -48,7 +48,7 @@ dtypes = {
 }
 
 # only load index and Query
-chunks = pd.read_csv(IN_FILE, index_col=0, dtype=dtypes, usecols=[0, 2], low_memory=False, chunksize=CHUNK_SIZE)
+chunks = pd.read_csv(IN_FILE, index_col=0, dtype=dtypes, usecols=[1, 3], low_memory=False, chunksize=CHUNK_SIZE)
 
 # Count the number of chunks in this file
 num_chunks = int(sum(1 for row in open(IN_FILE, 'r')) / CHUNK_SIZE) + 1

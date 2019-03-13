@@ -3,3 +3,4 @@ AOL-user-ct-collection
 .ipynb_checkpoints
 *.csv
 __pycache__
+*.model
