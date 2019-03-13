@@ -25,11 +25,11 @@
 import pandas as pd
 import dask.dataframe as dd
 import nltk
+import numpy as np
+from sklearn.datasets import dump_svmlight_file
 
 from util.dask import to_csv
 
-TRAINING_FILE = 'generated_candidate_head.csv'
-FEATURES_FILE = 'training_features.csv'
 SUFFIX_FILE = 'popular_suffix.csv'
 QUERY_FILE = 'popular_query.csv'
 
@@ -78,16 +78,20 @@ query_df = pd.read_csv(QUERY_FILE, index_col='Query', dtype=object, low_memory=F
 # In[ ]:
 
 
-def calculate_features(in_file, out_file):
-    df = dd.read_csv(in_file, dtype=object)
-
-    # Any empty query is not interesting
-    df = df.dropna()
+def calculate_features(in_file, svmlight_file, out_file):
+    df = pd.read_csv(in_file, dtype=object)
+    df = df.fillna('')
 
     df = df.reset_index(drop=True)
-
+    
+    qids = df.Prefix.unique()
+    qids = pd.Series(np.arange(len(qids)), qids)
+        
+    df['prefix_id'] = df.Prefix.apply(lambda x : qids.at[x])
+    
     df[ngram_cols] = df.Query.apply(ngram_apply, suffix_df=suffix_df)
-    df['query_freq'] = df.Query.apply(query_freq, query_df=query_df, meta=('freq', int))
+    df['query_freq'] = df.Query.apply(query_freq, query_df=query_df)
+    df['is_relevant'] = df['query_freq'].apply(lambda x : 1 if x > 0 else 0)
     df['prefix_len_c'] = df.Prefix.str.len()
     df['prefix_len_w'] = df.Prefix.str.split().str.len()
     df['suffix_len_c'] = df.Suffix.str.len()
@@ -95,14 +99,24 @@ def calculate_features(in_file, out_file):
     df['len_c'] = df.Query.str.len()
     df['len_w'] = df.Query.str.split().str.len()
     df['end_space'] = df.Prefix.str.endswith(' ').astype(int)
-
-    to_csv(df, out_file)
+    
+    df = df.drop('Prefix', axis=1)
+    df = df.drop('Query', axis=1)
+    df = df.drop('Suffix', axis=1)
+    
+    df = df.sort_values('prefix_id')
+    
+    data = df.drop('prefix_id', axis=1).drop('is_relevant', axis=1).drop('Index', axis=1)
+        
+    dump_svmlight_file(data, y=df['is_relevant'], query_id=df['prefix_id'], f=svmlight_file)
+    
+    df.to_csv(out_file)
 
 
 # In[ ]:
 
 
-calculate_features('training_sampled.csv', 'training_features.csv')
-calculate_features('test_sampled.csv', 'test_features.csv')
-calculate_features('validation_sampled.csv', 'validation_features.cvs')
+calculate_features('training_sampled.csv', 'training_features.svmlight.txt', 'training_features.csv')
+calculate_features('test_sampled.csv', 'test_features.svmlight.txt', 'test_features.csv')
+calculate_features('validation_sampled.csv', 'validation_features.svmlight.txt', 'validation_features.csv')
 

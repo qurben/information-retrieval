@@ -29,7 +29,7 @@ N_POPULAR_SUFFIX = 1000
 # In[ ]:
 
 
-suffix_df = pd.read_csv(POPULAR_SUFFIX_FILE, index_col=0, nrows=N_POPULAR_SUFFIX)
+suffix_df = pd.read_csv(POPULAR_SUFFIX_FILE, index_col='ngram', nrows=N_POPULAR_SUFFIX)
 
 
 # In[ ]:
@@ -48,16 +48,17 @@ def end_term(query):
         return query[query.rfind(' ')+1:]
 
 def match_end_term(end_term):
-    return list(suffix_df[suffix_df.ngram.str.startswith(end_term)].ngram)
+    return list(suffix_df[suffix_df.index.str.startswith(end_term)].index)
     
 def apply_end_term(row):
-    query = original_query = row.iloc[0].Query
+    query = original_query = row.Query.iat[0]
+        
     candidates = [{
         'Prefix': query,
         'Suffix': '',
         'Query': query
     }]
-        
+    
     while query.find(' ') != -1: # There is more than one word
         term = end_term(query)
         suffixes = match_end_term(term)
@@ -72,7 +73,7 @@ def apply_end_term(row):
                     'Query': new_query
                 })
         
-        query = query[:-1]
+        query = query[:query.rfind(' ')]
     
     return pd.DataFrame(candidates)
 
