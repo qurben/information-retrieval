@@ -81,7 +81,7 @@ def apply_end_term(row):
 # In[ ]:
 
 
-with open(OUT_FILE, 'w') as the_file: the_file.write('Prefix,Query,Suffix\n')
+with open(OUT_FILE, 'w') as the_file: the_file.write('Index,Prefix,Query,Suffix\n')
 
 
 # In[ ]:
@@ -97,22 +97,18 @@ dtypes = {
 }
 
 # only load index and Query
-chunks = pd.read_csv(BASE_FILE, index_col=0, dtype=dtypes, low_memory=False, chunksize=CHUNK_SIZE)
-
-# Count the number of chunks in this file
-num_chunks = int(sum(1 for row in open(BASE_FILE, 'r')) / CHUNK_SIZE) + 1
-chunk_id = iter(range(1, num_chunks+1))
+df = pd.read_csv(BASE_FILE, index_col='Index', dtype=dtypes, low_memory=False)
 
 
 # In[ ]:
 
 
-for df in chunks:
-    print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
-    # Any empty query is not interesting
-    df.dropna(inplace=True)
+# Any empty query is not interesting
+df.dropna(inplace=True)
 
-    df2 = df.groupby(df.columns.tolist(), group_keys=False).apply(apply_end_term)
+df = df.groupby(df.columns.tolist(), group_keys=False).apply(apply_end_term)
+df = df.reset_index()
+df = df.drop('index', axis=1) # drop de oude index
 
-    df2.to_csv(OUT_FILE, mode='a', header=False, index=False)
+df.to_csv(OUT_FILE, mode='a', header=False)
 
