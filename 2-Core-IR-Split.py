@@ -37,10 +37,10 @@ if os.path.isfile('background.csv'):
 
 
 data_start = "2006-03-01 00:00:00"
-background_end = "2006-04-30 23:59:59"
-training_end = "2006-05-14 23:59:59"
-validation_end = "2006-05-21 23:59:59"
-test_end = "2006-05-28 23:59:59"
+background_end = "2006-03-01 23:59:59"
+training_end = "2006-03-02 23:59:59"
+validation_end = "2006-03-03 12:59:59"
+test_end = "2006-03-03 23:59:59"
 
 dtypes = {
     'Index': 'int64',

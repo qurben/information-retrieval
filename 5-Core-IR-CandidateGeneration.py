@@ -29,7 +29,7 @@ N_POPULAR_SUFFIX = 1000
 # In[ ]:
 
 
-suffix_df = pd.read_csv(POPULAR_SUFFIX_FILE, index_col=0, nrows=N_POPULAR_SUFFIX)
+suffix_df = pd.read_csv(POPULAR_SUFFIX_FILE, index_col='ngram', nrows=N_POPULAR_SUFFIX)
 
 
 # In[ ]:
@@ -48,16 +48,17 @@ def end_term(query):
         return query[query.rfind(' ')+1:]
 
 def match_end_term(end_term):
-    return list(suffix_df[suffix_df.ngram.str.startswith(end_term)].ngram)
+    return list(suffix_df[suffix_df.index.str.startswith(end_term)].index)
     
 def apply_end_term(row):
-    query = original_query = row.iloc[0].Query
+    query = original_query = row.Query.iat[0]
+        
     candidates = [{
         'Prefix': query,
         'Suffix': '',
         'Query': query
     }]
-        
+    
     while query.find(' ') != -1: # There is more than one word
         term = end_term(query)
         suffixes = match_end_term(term)
@@ -72,7 +73,7 @@ def apply_end_term(row):
                     'Query': new_query
                 })
         
-        query = query[:-1]
+        query = query[:query.rfind(' ')]
     
     return pd.DataFrame(candidates)
 
@@ -80,7 +81,7 @@ def apply_end_term(row):
 # In[ ]:
 
 
-with open(OUT_FILE, 'w') as the_file: the_file.write('Prefix,Query,Suffix\n')
+with open(OUT_FILE, 'w') as the_file: the_file.write('Index,Prefix,Query,Suffix\n')
 
 
 # In[ ]:
@@ -96,22 +97,18 @@ dtypes = {
 }
 
 # only load index and Query
-chunks = pd.read_csv(BASE_FILE, index_col=0, dtype=dtypes, low_memory=False, chunksize=CHUNK_SIZE)
-
-# Count the number of chunks in this file
-num_chunks = int(sum(1 for row in open(BASE_FILE, 'r')) / CHUNK_SIZE) + 1
-chunk_id = iter(range(1, num_chunks+1))
+df = pd.read_csv(BASE_FILE, index_col='Index', dtype=dtypes, low_memory=False)
 
 
 # In[ ]:
 
 
-for df in chunks:
-    print("Processing chunk {} of {}".format(next(chunk_id), num_chunks), end="\r")
-    # Any empty query is not interesting
-    df.dropna(inplace=True)
+# Any empty query is not interesting
+df.dropna(inplace=True)
 
-    df2 = df.groupby(df.columns.tolist(), group_keys=False).apply(apply_end_term)
+df = df.groupby(df.columns.tolist(), group_keys=False).apply(apply_end_term)
+df = df.reset_index()
+df = df.drop('index', axis=1) # drop de oude index
 
-    df2.to_csv(OUT_FILE, mode='a', header=False, index=False)
+df.to_csv(OUT_FILE, mode='a', header=False)
 
