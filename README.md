@@ -167,8 +167,6 @@ suffix based candidates:
 - 5K most frequent suffixes
 - 10K most frequent suffixes (validate)
 - 20K most frequent suffixes
-- 50K most frequent suffixes
-- 75K most frequent suffixes
 - 100K most frequent suffixes (validate)
 
 ### Feature file format
