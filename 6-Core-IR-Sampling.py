@@ -9,7 +9,7 @@ import dask.dataframe as dd
 
 from util.dask import to_csv
 
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 10000
 
 dtypes = {
     'Index': 'int64',
@@ -25,10 +25,10 @@ dtypes = {
 
 
 def sample_query(query):
-    yield query
-    
-    for i in range(1, len(query)):
-        yield query[:-i]
+    while query.rfind(' ') != -1:
+        yield query
+        
+        query = query[:query.rfind(' ')]
         
 def extract_suffix(row):
     query = row.Query
